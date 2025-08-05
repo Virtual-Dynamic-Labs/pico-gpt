@@ -4,7 +4,9 @@ import numpy as np
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from pico_gpt import GPT
+import sys
+sys.path.append('..')
+from src.pico_gpt import GPT
 
 
 def benchmark_inference(device_name, num_runs=50):
@@ -20,7 +22,7 @@ def benchmark_inference(device_name, num_runs=50):
     
     # Load the large trained model
     try:
-        checkpoint_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'pico_gpt_fast.pt')
+        checkpoint_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'models', 'pico_gpt_final.pt')
         checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
         
         config = checkpoint['config']

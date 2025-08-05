@@ -2,6 +2,9 @@ import torch
 import torch.nn as nn
 import time
 import numpy as np
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from pico_gpt import GPT, GPTConfig
 from tokenizer import SimpleTokenizer
 
@@ -14,7 +17,7 @@ def get_batch(data, batch_size, block_size, device):
     return x, y
 
 
-def benchmark_training(device_name, num_iters=100):
+def benchmark_training(device_name, num_iters=50):
     print(f"\n=== Benchmarking on {device_name.upper()} ===")
     
     # Force device
@@ -25,29 +28,44 @@ def benchmark_training(device_name, num_iters=100):
     
     print(f"Using device: {device}")
     
-    # Small model configuration for quick benchmarking
-    config = GPTConfig()
-    config.block_size = 128
-    config.vocab_size = 1000
-    config.n_layer = 4
-    config.n_head = 4
-    config.n_embd = 256
-    config.dropout = 0.1
+    # Load the large trained model
+    try:
+        checkpoint_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'pico_gpt_large_best.pt')
+        checkpoint = torch.load(checkpoint_path, map_location=device)
+        
+        config = checkpoint['config']
+        model = GPT(config)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        model.to(device)
+        
+        tokenizer = checkpoint['tokenizer']
+        
+        print(f"Loaded large model with {model.get_num_params():,} parameters")
+        
+    except FileNotFoundError:
+        print("Large model not found, falling back to small model")
+        config = GPTConfig()
+        config.block_size = 128
+        config.vocab_size = 1000
+        config.n_layer = 4
+        config.n_head = 4
+        config.n_embd = 256
+        config.dropout = 0.1
+        
+        model = GPT(config)
+        model.to(device)
+        tokenizer = SimpleTokenizer(vocab_size=config.vocab_size)
     
     # Create sample data
     sample_text = """Hello world! This is a benchmark test for comparing CUDA vs CPU performance.
     The quick brown fox jumps over the lazy dog. Python is great for machine learning.
     Neural networks are fascinating and powerful tools for artificial intelligence.
     Training on GPU should be significantly faster than CPU for deep learning models.
-    """ * 50  # Repeat for more data
+    Once upon a time in a land far away, there lived a wise old wizard who knew the secrets of deep learning.
+    """ * 20  # Repeat for more data
     
-    # Tokenize
-    tokenizer = SimpleTokenizer(vocab_size=config.vocab_size)
+    # Tokenize with appropriate vocab size
     data = torch.tensor(tokenizer.encode(sample_text), dtype=torch.long)
-    
-    # Create model and move to device
-    model = GPT(config)
-    model.to(device)
     
     # Training settings
     batch_size = 16
@@ -88,8 +106,8 @@ def benchmark_training(device_name, num_iters=100):
         loss.backward()
         optimizer.step()
         
-        # Print progress every 25 iterations
-        if (iter + 1) % 25 == 0:
+        # Print progress every 10 iterations
+        if (iter + 1) % 10 == 0:
             print(f"  Iteration {iter + 1}/{num_iters}, Loss: {loss.item():.4f}")
     
     # Ensure all operations complete
@@ -131,8 +149,8 @@ def main():
     if torch.cuda.is_available():
         print(f"CUDA device: {torch.cuda.get_device_name(0)}")
     
-    # Run benchmarks
-    num_iterations = 100
+    # Run benchmarks (reduced iterations for large model)
+    num_iterations = 50
     
     # Benchmark CPU
     cpu_results = benchmark_training('cpu', num_iterations)

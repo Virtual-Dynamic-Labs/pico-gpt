@@ -78,6 +78,7 @@ Model saved as 'pico_gpt_model.pt'
 
 ### 4. Generate Text
 
+#### Option A: Simple Generation
 ```bash
 # Basic text generation
 python generate.py --prompt "Hello world"
@@ -86,30 +87,102 @@ python generate.py --prompt "Hello world"
 python generate.py --prompt "Python is" --max_tokens 50 --temperature 0.8 --top_k 10
 ```
 
-Example output:
-```
-Using device: cpu
-Model loaded from pico_gpt_model.pt
+#### Option B: Interactive Chat (Recommended)
+```bash
+# Start interactive conversation mode
+python cli_client.py
 
-Prompt: Hello world
-Generated: Hello world! This is a simple test. The quick brown fox jumps over the lazy dog.
+# Or use PowerShell launcher on Windows
+.\run_cli.ps1
+
+# Single prompt mode
+python cli_client.py --prompt "Tell me about AI"
+```
+
+**Interactive CLI Features:**
+- 💬 **Conversation Mode** - Maintains context across exchanges
+- 🔄 **Single-Prompt Mode** - Independent text generation
+- ⚙️ **Adjustable Settings** - Temperature, top-k, max tokens
+- 📝 **Command System** - `/help`, `/settings`, `/clear`, etc.
+- 💾 **History Support** - Command history with readline
+
+Example CLI session:
+```
+*** Pico GPT CLI Client - Conversation Mode ***
+[You]: Hello, my name is Alice.
+[Assistant]: Nice to meet you, Alice! How can I help you today?
+
+[You]: What's my name?
+[Assistant]: Your name is Alice, as you mentioned when we started talking.
+
+[You]: /settings
+[SETTINGS] Current Generation Settings:
+  Max tokens: 100
+  Temperature: 0.8
+  Top-k: 20
 ```
 
 ## 📁 Project Structure
 
 ```
 pico-gpt/
-├── pico_gpt.py          # Core GPT model implementation
-├── tokenizer.py         # Tokenization utilities
-├── train.py             # Full training script
-├── train_small.py       # Quick training for testing
-├── generate.py          # Text generation CLI
-├── example.py           # Educational examples
-├── test_train.py        # Quick training test
-├── requirements.txt     # Python dependencies
-├── README.md           # This file
-└── TEST_RESULTS.md     # Test validation results
+├── pico_gpt.py              # Core GPT model implementation
+├── tokenizer.py             # Tokenization utilities
+├── train.py                 # Full training script
+├── train_large.py           # Large model training script
+├── train_small.py           # Quick training for testing
+├── generate.py              # Text generation CLI
+├── cli_client.py            # Interactive conversation CLI
+├── run_cli.ps1              # PowerShell launcher for Windows
+├── example.py               # Educational examples
+├── test_train.py            # Quick training test
+├── requirements.txt         # Python dependencies
+├── benchmarks/              # Performance benchmarking tools
+│   ├── benchmark_cuda_vs_cpu.py
+│   ├── benchmark_large_model.py
+│   └── test_large_model.py
+├── data/                    # Training datasets
+│   ├── combined_literature.txt
+│   └── [various text files...]
+├── *.pt                     # Model checkpoint files (see below)
+├── README.md               # This file
+└── TEST_RESULTS.md         # Test validation results
 ```
+
+## 💾 Model Files (.pt files)
+
+The project contains several PyTorch model checkpoint files:
+
+### **Active Models**
+- **`pico_gpt_large_best.pt`** (299MB) - **Primary model** with best validation performance
+  - 25.7M parameters (8 layers, 8 heads, 512 embedding dim)
+  - Validation loss: 1.1405
+  - Trained for 4,801 iterations
+  - **Default model** used by CLI
+
+- **`pico_gpt_model.pt`** (2.5MB) - Compact model for testing
+  - 620K parameters (smaller, faster alternative)
+  - Good for quick testing and low-resource environments
+
+### **Training Checkpoints**
+- `pico_gpt_large_checkpoint_*.pt` - Saved every 500 iterations during training
+- `pico_gpt_large_final.pt` - Final training state after 5,000 iterations
+
+### **What's Inside Each .pt File**
+```python
+checkpoint = torch.load('model.pt')
+# Contains:
+checkpoint['model_state_dict']    # Neural network weights
+checkpoint['config']              # Model architecture settings
+checkpoint['tokenizer']           # Text encoding/decoding component
+checkpoint['iter']                # Training iteration count
+checkpoint['best_val_loss']       # Best validation loss achieved
+```
+
+### **File Size Reference**
+- **Large models**: ~299MB each (25.7M parameters)
+- **Small model**: ~2.5MB (620K parameters)
+- **Total checkpoint storage**: ~3GB (can be cleaned up if needed)
 
 ## 🔧 Configuration
 
@@ -207,14 +280,40 @@ for name, module in model.named_modules():
 
 ## 🎯 Command Line Interface
 
-### generate.py Options
+### Interactive CLI (cli_client.py)
+
+The main interface for interacting with trained models:
+
+```bash
+python cli_client.py --help
+```
+
+**Options:**
+- `--model`, `-m`: Model file path (default: `pico_gpt_large_best.pt`)
+- `--device`, `-d`: Device (`cpu`, `cuda`, `auto`)
+- `--max-tokens`, `-t`: Max tokens to generate (default: `100`)
+- `--temperature`, `-T`: Sampling temperature (default: `0.8`)
+- `--top-k`, `-k`: Top-k sampling (default: `20`)
+- `--prompt`, `-p`: Single prompt mode (non-interactive)
+
+**Interactive Commands:**
+- `/help` - Show command reference
+- `/settings` - View/modify generation parameters
+- `/clear` - Clear screen
+- `/reset` - Clear conversation context
+- `/status` - Show conversation status
+- `/mode` - Toggle conversation/single-prompt modes
+- `/quit` - Exit program
+- `/info` - Show model information
+
+### Simple Generation (generate.py)
 
 ```bash
 python generate.py --help
 ```
 
 Available options:
-- `--model`: Path to model checkpoint (default: `pico_gpt_model.pt`)
+- `--model`: Path to model checkpoint (default: `pico_gpt_large_best.pt`)
 - `--prompt`: Text prompt for generation (default: `"Hello"`)
 - `--max_tokens`: Maximum tokens to generate (default: `100`)
 - `--temperature`: Sampling temperature 0.1-2.0 (default: `0.8`)
@@ -223,14 +322,20 @@ Available options:
 ### Examples
 
 ```bash
+# Interactive conversation
+python cli_client.py
+
+# Windows PowerShell
+.\run_cli.ps1 -Prompt "Hello world"
+
 # Creative writing (high temperature)
 python generate.py --prompt "Once upon a time" --temperature 1.2 --max_tokens 200
 
 # Factual completion (low temperature)
 python generate.py --prompt "Python is a programming language" --temperature 0.3
 
-# Diverse sampling
-python generate.py --prompt "The benefits of" --top_k 20 --temperature 0.9
+# Different model
+python cli_client.py --model pico_gpt_model.pt --prompt "Test small model"
 ```
 
 ## 🧪 Testing & Validation
@@ -249,6 +354,43 @@ python train_small.py && python generate.py --prompt "Test"
 ```
 
 See `TEST_RESULTS.md` for detailed validation results.
+
+## ⚡ Performance Benchmarking
+
+### CUDA vs CPU Performance
+```bash
+# Benchmark inference performance
+python benchmarks/benchmark_large_model.py
+
+# Training performance comparison (small model)
+python benchmarks/benchmark_cuda_vs_cpu.py
+```
+
+**Example Results (RTX 3080 Ti):**
+```
+Large Model CUDA vs CPU Inference Benchmark
+============================================================
+Model: 123.7M parameters (12 layers, 12 heads, 768 embedding dim)
+
+Average Generation Time:
+  CPU:  2739.40 ms
+  CUDA: 430.50 ms
+  Speedup: 6.36x faster
+
+Throughput (tokens/sec):
+  CPU:  18.3
+  CUDA: 116.1
+  Improvement: 6.36x
+
+Memory Usage:
+  CUDA Allocated: 981.1 MB
+```
+
+### Model Comparison
+| Model | Parameters | Size | Inference Speed (CUDA) | Use Case |
+|-------|------------|------|----------------------|----------|
+| `pico_gpt_model.pt` | 620K | 2.5MB | ~500 tokens/sec | Testing, low-resource |
+| `pico_gpt_large_best.pt` | 25.7M | 299MB | ~116 tokens/sec | Production, quality |
 
 ## 🎓 Educational Notes
 

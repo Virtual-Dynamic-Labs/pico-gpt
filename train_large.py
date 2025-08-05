@@ -54,27 +54,27 @@ def train_large_model():
     # Enhanced Configuration for RTX 3080 Ti (12GB VRAM)
     # These settings are optimized for 12GB VRAM while maximizing model capability
     config = GPTConfig()
-    config.block_size = 512          # Sequence length
-    config.vocab_size = 50304        # GPT-2 vocab size (padded for efficiency)
-    config.n_layer = 12              # Number of transformer layers
-    config.n_head = 12               # Number of attention heads
-    config.n_embd = 768              # Embedding dimension
+    config.block_size = 256          # Reduced sequence length for memory efficiency
+    config.vocab_size = 1000         # Match tokenizer vocab size
+    config.n_layer = 8               # Reduced layers for stable training
+    config.n_head = 8                # Reduced heads
+    config.n_embd = 512              # Reduced embedding dimension
     config.dropout = 0.1             # Dropout rate
     config.bias = True               # Use bias in linear layers
     
     # Training hyperparameters
-    batch_size = 8                   # Reduced for memory efficiency
-    learning_rate = 3e-4             # Base learning rate
-    max_iters = 10000                # Maximum training iterations
-    eval_interval = 500              # Evaluate every N iterations
-    eval_iters = 100                 # Number of iterations for evaluation
-    log_interval = 100               # Log every N iterations
-    save_interval = 1000             # Save checkpoint every N iterations
+    batch_size = 16                  # Increased for better training
+    learning_rate = 1e-3             # Higher learning rate for faster convergence
+    max_iters = 5000                 # Reasonable training iterations
+    eval_interval = 200              # Evaluate more frequently
+    eval_iters = 50                  # Fewer evaluation iterations
+    log_interval = 50                # Log more frequently
+    save_interval = 500              # Save more frequently
     
     # Learning rate schedule
-    warmup_iters = 1000              # Warmup iterations
-    lr_decay_iters = 8000            # Decay learning rate over these iterations
-    min_lr = 3e-5                    # Minimum learning rate
+    warmup_iters = 200               # Reduced warmup iterations
+    lr_decay_iters = 4000            # Decay learning rate over these iterations
+    min_lr = 1e-4                    # Minimum learning rate
     
     # Gradient clipping
     grad_clip = 1.0
@@ -103,7 +103,7 @@ def train_large_model():
     
     print(f"Dataset size: {len(text):,} characters ({len(text)/1e6:.1f}M)")
     
-    # Enhanced tokenizer with larger vocabulary
+    # Create tokenizer matching config vocab size
     print("Creating tokenizer...")
     tokenizer = SimpleTokenizer(vocab_size=config.vocab_size)
     
@@ -146,13 +146,25 @@ def train_large_model():
     # Optimizer with weight decay
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, betas=(0.9, 0.95), weight_decay=0.1)
     
+    # Verify we have enough data
+    min_required_tokens = batch_size * config.block_size * 10
+    if len(train_data) < min_required_tokens:
+        print(f"WARNING: Training data may be too small ({len(train_data)} tokens)")
+        print(f"Recommended minimum: {min_required_tokens} tokens")
+    
     # Training loop
     print(f"\nStarting training for {max_iters} iterations...")
     print(f"Batch size: {batch_size}, Block size: {config.block_size}")
+    print(f"Vocab size: {config.vocab_size}, Model size: {config.n_layer} layers")
     print("-" * 70)
     
     start_time = time.time()
     best_val_loss = float('inf')
+    
+    # Test initial loss
+    initial_loss = estimate_loss(model, train_data, val_data, 10, batch_size, config.block_size, device)
+    print(f"Initial train loss: {initial_loss['train']:.4f}, val loss: {initial_loss['val']:.4f}")
+    print("-" * 70)
     
     for iter in range(max_iters):
         # Determine learning rate
@@ -176,11 +188,12 @@ def train_large_model():
                     'optimizer_state_dict': optimizer.state_dict(),
                     'config': config,
                     'tokenizer': tokenizer,
-                    'iter': iter,
+                    'iter': iter + 1,  # Save the next iteration number
                     'best_val_loss': best_val_loss,
                     'train_loss': losses['train']
                 }
                 torch.save(checkpoint, 'pico_gpt_large_best.pt')
+                print(f"    Saved new best model (val loss: {best_val_loss:.4f})")
         
         # Sample a batch of data
         xb, yb = get_batch(train_data, batch_size, config.block_size, device)

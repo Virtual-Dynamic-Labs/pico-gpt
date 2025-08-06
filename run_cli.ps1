@@ -25,7 +25,7 @@ if ($Help) {
     Write-Output "Usage: .\run_cli.ps1 [OPTIONS]"
     Write-Output ""
     Write-Output "Options:"
-    Write-Output "  -Model <path>        Path to model file (default: models/pico_gpt_large_best.pt)"
+    Write-Output "  -Model <path>        Path to model file (default: pico_gpt_large.pt)"
     Write-Output "  -Device <device>     Device: cpu, cuda, auto (default: auto)"
     Write-Output "  -MaxTokens <int>     Maximum tokens (default: 100)"
     Write-Output "  -Temperature <float> Temperature (default: 0.8)"
@@ -36,7 +36,7 @@ if ($Help) {
     Write-Output "Examples:"
     Write-Output "  .\run_cli.ps1"
     Write-Output "  .\run_cli.ps1 -Prompt `"Hello world`""
-    Write-Output "  .\run_cli.ps1 -Model models/pico_gpt_final.pt -MaxTokens 200 -Temperature 0.9"
+    Write-Output "  .\run_cli.ps1 -Model pico_gpt_large.pt -MaxTokens 200 -Temperature 0.9"
     exit 0
 }
 
@@ -70,7 +70,7 @@ $modelFiles += Get-ChildItem -Path "*.pt" -ErrorAction SilentlyContinue
 
 if ($modelFiles.Count -eq 0) {
     Write-Warning "No model files (.pt) found"
-    Write-Warning "Train a model first using training\train_large.py or training\train_small.py"
+    Write-Warning "Train a model first using training\train_large.py"
 } else {
     Write-Success "Found $($modelFiles.Count) model file(s)"
     foreach ($file in $modelFiles) {

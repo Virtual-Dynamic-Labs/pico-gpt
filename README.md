@@ -31,12 +31,8 @@ pico-gpt/
 │   └── __init__.py
 │
 ├── 📁 training/                 # Training scripts
-│   ├── train_final.py          # 🌟 BEST: Fast conversation training
-│   ├── train_fast.py           # Speed-optimized training
-│   ├── train_conversation.py   # Conversation-focused training
-│   ├── train_large.py          # Large model training
-│   ├── train_small.py          # Quick testing
-│   └── train.py                # Basic training
+│   ├── train_conversation.py   # 🌟 BEST: Conversation model training
+│   └── train_large.py          # Large model training
 │
 ├── 📁 cli/                      # User interfaces
 │   ├── cli_fast.py             # 🌟 MAIN: Interactive chat CLI
@@ -45,10 +41,8 @@ pico-gpt/
 │   └── run_cli.ps1             # Windows PowerShell launcher
 │
 ├── 📁 models/                   # Trained models
-│   ├── pico_gpt_final.pt       # 🌟 BEST: Fast conversation model
-│   ├── pico_gpt_fast.pt        # Speed-optimized model
-│   ├── pico_gpt_large_best.pt  # Large production model (25.7M params)
-│   └── pico_gpt_model.pt       # Compact testing model (620K params)
+│   ├── pico_gpt_conversation.pt # 🌟 BEST: Conversation model (26.2M params)
+│   └── pico_gpt_large.pt       # Large model for maximum capability (88.9M params)
 │
 ├── 📁 datasets/                 # Training data & tokenizers
 │   ├── clean_conversation_data.txt    # 🌟 Clean chat data
@@ -111,17 +105,11 @@ run_cli.bat
 ### 3. Train a Model
 
 ```bash
-# Train the best conversation model (16 seconds!)
+# Train the best conversation model
 cd training
-python train_final.py
+python train_conversation.py
 
-# Or from root
-python main.py train --type conversation
-
-# Quick testing model
-python training/train_small.py
-
-# Large production model
+# Large model for maximum capability
 python training/train_large.py
 ```
 
@@ -154,25 +142,21 @@ python main.py test --type basic
 ## 💾 Model Files
 
 ### **Active Models**
-- **`pico_gpt_large_best.pt`** (299MB) - **Primary model** with best validation performance
-  - 25.7M parameters (8 layers, 8 heads, 512 embedding dim)
-  - Validation loss: 1.1405
+- **`pico_gpt_conversation.pt`** - **Primary conversation model**
+  - 26.2M parameters (8 layers, 8 heads, 512 embedding dim)
   - **Default model** used by CLI
+  - Optimized for natural conversations
 
-- **`pico_gpt_final.pt`** - **Fast conversation model**
-  - 13.7M parameters, trains in 16 seconds
-  - Conversation-focused, no literature regurgitation
-
-- **`pico_gpt_model.pt`** (2.5MB) - Compact model for testing
-  - 620K parameters (smaller, faster alternative)
-  - Good for quick testing and low-resource environments
+- **`pico_gpt_large.pt`** - **Large capability model**
+  - 88.9M parameters (12 layers, 12 heads, 768 embedding dim)
+  - Maximum model capability
+  - Use for complex tasks requiring more intelligence
 
 ### **Model Comparison**
-| Model | Parameters | Size | Training Time | Use Case |
-|-------|------------|------|---------------|----------|
-| `pico_gpt_final.pt` | 13.7M | ~50MB | 16 seconds | 🌟 **Best for chat** |
-| `pico_gpt_model.pt` | 620K | 2.5MB | ~2 minutes | Testing, low-resource |
-| `pico_gpt_large_best.pt` | 25.7M | 299MB | ~2 hours | Production, quality |
+| Model | Parameters | Size | Use Case |
+|-------|------------|------|---------|
+| `pico_gpt_conversation.pt` | 26.2M | ~100MB | 🌟 **Best for conversation** |
+| `pico_gpt_large.pt` | 88.9M | ~350MB | Maximum capability, complex tasks |
 
 ## 🎯 Command Line Interface
 
@@ -194,7 +178,7 @@ When in conversation mode, you can use these commands:
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `--model` / `-m` | Path to model file | `pico_gpt_large_best.pt` |
+| `--model` / `-m` | Path to model file | `pico_gpt_conversation.pt` |
 | `--device` / `-d` | Device (cpu/cuda/auto) | `auto` |
 | `--max-tokens` / `-t` | Maximum tokens to generate | `100` |
 | `--temperature` / `-T` | Sampling temperature | `0.8` |
@@ -208,7 +192,7 @@ When in conversation mode, you can use these commands:
 python cli/cli_client.py
 
 # Windows PowerShell with custom settings
-.\cli\run_cli.ps1 -Model "pico_gpt_final.pt" -MaxTokens 200 -Temperature 0.9
+.\cli\run_cli.ps1 -Model "pico_gpt_large.pt" -MaxTokens 200 -Temperature 0.9
 
 # Creative writing (high temperature)
 python cli/generate.py --prompt "Once upon a time" --temperature 1.2 --max_tokens 200
@@ -217,7 +201,7 @@ python cli/generate.py --prompt "Once upon a time" --temperature 1.2 --max_token
 python cli/generate.py --prompt "Python is a programming language" --temperature 0.3
 
 # Different model
-python cli/cli_client.py --model models/pico_gpt_final.pt --prompt "Test conversation"
+python cli/cli_client.py --model models/pico_gpt_conversation.pt --prompt "Test conversation"
 ```
 
 ## 🔧 Configuration
@@ -266,7 +250,7 @@ from src.fast_tokenizer import GPT2LikeTokenizer
 import torch
 
 # Load model
-checkpoint = torch.load('models/pico_gpt_final.pt', weights_only=False)
+checkpoint = torch.load('models/pico_gpt_conversation.pt', weights_only=False)
 model = GPT(checkpoint['config'])
 model.load_state_dict(checkpoint['model_state_dict'])
 tokenizer = checkpoint['tokenizer']

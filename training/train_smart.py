@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Train a smarter GPT model using high-quality conversation data
-Optimized configuration for better reasoning and conversation abilities
+Train a smart reasoning model with balanced parameters
+Optimized for intelligence while keeping reasonable training time
 """
 
 import torch
@@ -44,13 +44,13 @@ def estimate_loss(model, train_data, val_data, eval_iters, batch_size, block_siz
 
 
 def get_lr(it, warmup_iters, learning_rate, lr_decay_iters, min_lr):
-    # 1) linear warmup for warmup_iters steps
+    # Linear warmup
     if it < warmup_iters:
         return learning_rate * it / warmup_iters
-    # 2) if it > lr_decay_iters, return min learning rate
+    # Decay
     if it > lr_decay_iters:
         return min_lr
-    # 3) in between, use cosine decay down to min learning rate
+    # Cosine decay
     decay_ratio = (it - warmup_iters) / (lr_decay_iters - warmup_iters)
     assert 0 <= decay_ratio <= 1
     coeff = 0.5 * (1.0 + math.cos(math.pi * decay_ratio))
@@ -58,18 +58,18 @@ def get_lr(it, warmup_iters, learning_rate, lr_decay_iters, min_lr):
 
 
 def train_smart_model():
-    """Train a smarter model with better architecture and data"""
-    print("*** Training Smart Conversation Model ***")
-    print("=" * 50)
+    """Train a smart reasoning model"""
+    print("*** Training Smart Reasoning Model ***")
+    print("=" * 45)
     
-    # Training hyperparameters - optimized for intelligence and speed
-    batch_size = 16  # Balanced batch size for efficiency
-    block_size = 256  # Reasonable context for reasoning tasks
-    max_iters = 4000  # More training for better intelligence
-    eval_interval = 200  # More frequent evaluation
-    learning_rate = 3e-4  # Optimal learning rate
-    warmup_iters = 800
-    lr_decay_iters = 8000
+    # Balanced training hyperparameters
+    batch_size = 16
+    block_size = 256
+    max_iters = 1500    # Reasonable number of iterations
+    eval_interval = 300
+    learning_rate = 3e-4
+    warmup_iters = 100
+    lr_decay_iters = 1500
     min_lr = 3e-5
     eval_iters = 100
     
@@ -77,14 +77,14 @@ def train_smart_model():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f"Using device: {device}")
     
-    # Optimized model configuration for reasoning
+    # Smart model configuration - balanced for intelligence
     config = GPTConfig()
     config.block_size = block_size
-    config.vocab_size = 3000  # Optimized vocabulary size
-    config.n_layer = 16  # Deeper for better reasoning
-    config.n_head = 16   # More attention heads for complex patterns
-    config.n_embd = 1024  # Larger embedding for richer representations
-    config.dropout = 0.1  # Prevent overfitting
+    config.vocab_size = 3000
+    config.n_layer = 10      # Good depth for reasoning
+    config.n_head = 10       # Good attention
+    config.n_embd = 640      # Balanced embedding size
+    config.dropout = 0.1
     config.bias = True
     
     print(f"Model configuration:")
@@ -103,7 +103,7 @@ def train_smart_model():
     
     print(f"Data size: {len(text):,} characters")
     
-    # Create tokenizer with larger vocabulary
+    # Create tokenizer
     tokenizer = SimpleTokenizer(vocab_size=config.vocab_size)
     
     # Encode the data
@@ -125,15 +125,13 @@ def train_smart_model():
     
     # Count parameters
     total_params = sum(p.numel() for p in model.parameters())
-    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"Total parameters: {total_params:,}")
-    print(f"Trainable parameters: {trainable_params:,}")
     
     # Initialize optimizer
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
     
     print(f"\nStarting training for {max_iters:,} iterations...")
-    print("-" * 50)
+    print("-" * 45)
     
     # Training variables
     best_val_loss = float('inf')
@@ -179,23 +177,10 @@ def train_smart_model():
         optimizer.zero_grad(set_to_none=True)
         loss.backward()
         
-        # Gradient clipping for stability
+        # Gradient clipping
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         
         optimizer.step()
-        
-        # Less frequent checkpoints for speed
-        if iter_num > 0 and iter_num % 1000 == 0:
-            checkpoint = {
-                'model_state_dict': model.state_dict(),
-                'config': config,
-                'tokenizer': tokenizer,
-                'iter': iter_num,
-                'best_val_loss': best_val_loss,
-                'train_loss': loss.item()
-            }
-            torch.save(checkpoint, f'../models/pico_gpt_large_checkpoint_{iter_num}.pt')
-            print(f"  -> Saved checkpoint at iteration {iter_num}")
     
     # Final save
     final_checkpoint = {
@@ -212,7 +197,7 @@ def train_smart_model():
     print(f"\n*** Training completed! ***")
     print(f"Total time: {total_time:.1f} seconds ({total_time/60:.1f} minutes)")
     print(f"Best validation loss: {best_val_loss:.4f}")
-    print(f"Model saved as: models/pico_gpt_large.pt")
+    print(f"Model saved as: ../models/pico_gpt_large.pt")
     
     # Test generation
     print(f"\n*** Testing generation... ***")
@@ -220,9 +205,9 @@ def train_smart_model():
     
     test_prompts = [
         "Problem: Calculate the area of a triangle with sides 3, 4, and 5.",
-        "Problem: Debug this Python code that has an error.", 
         "Problem: A train travels 240 km in 3 hours. What is its speed?",
-        "Problem: Optimize this SQL query for better performance."
+        "Problem: Debug this Python code that has an error.",
+        "Problem: Solve this step by step: 2x + 5 = 3x - 7"
     ]
     
     for prompt in test_prompts:

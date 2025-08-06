@@ -38,7 +38,7 @@ if sys.platform == "win32":
 
 
 class PicoGPTCLI:
-    def __init__(self, model_path='pico_gpt_large_best.pt', device=None):
+    def __init__(self, model_path='pico_gpt_large.pt', device=None):
         """Initialize the CLI client"""
         self.model_path = model_path
         self.device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
@@ -451,8 +451,8 @@ class PicoGPTCLI:
 def main():
     """Main entry point"""
     parser = argparse.ArgumentParser(description='Pico GPT CLI Client')
-    parser.add_argument('--model', '-m', default='pico_gpt_large_best.pt',
-                        help='Path to model file (default: pico_gpt_large_best.pt)')
+    parser.add_argument('--model', '-m', default='pico_gpt_large.pt',
+                        help='Path to model file (default: pico_gpt_large.pt)')
     parser.add_argument('--device', '-d', choices=['cpu', 'cuda', 'auto'], default='auto',
                         help='Device to use (default: auto)')
     parser.add_argument('--max-tokens', '-t', type=int, default=100,

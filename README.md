@@ -394,6 +394,10 @@ Memory Usage:
 
 ## 🎓 Educational Notes
 
+### Architecture Diagram
+
+See [architecture_diagram.md](architecture_diagram.md) for a detailed visual representation of the Pico GPT architecture, including data flow and component relationships.
+
 ### Understanding the Architecture
 
 1. **Transformer Blocks**: Each block contains self-attention + MLP

@@ -25,7 +25,7 @@ if ($Help) {
     Write-Output "Usage: .\run_cli.ps1 [OPTIONS]"
     Write-Output ""
     Write-Output "Options:"
-    Write-Output "  -Model <path>        Path to model file"
+    Write-Output "  -Model <path>        Path to model file (default: models/pico_gpt_large_best.pt)"
     Write-Output "  -Device <device>     Device: cpu, cuda, auto (default: auto)"
     Write-Output "  -MaxTokens <int>     Maximum tokens (default: 100)"
     Write-Output "  -Temperature <float> Temperature (default: 0.8)"
@@ -36,7 +36,7 @@ if ($Help) {
     Write-Output "Examples:"
     Write-Output "  .\run_cli.ps1"
     Write-Output "  .\run_cli.ps1 -Prompt `"Hello world`""
-    Write-Output "  .\run_cli.ps1 -Model model.pt -MaxTokens 50"
+    Write-Output "  .\run_cli.ps1 -Model models/pico_gpt_final.pt -MaxTokens 200 -Temperature 0.9"
     exit 0
 }
 
@@ -54,14 +54,10 @@ if ($LASTEXITCODE -ne 0) {
 Write-Success "Python found: $pythonVersion"
 
 # Check cli_client.py
-if (-not (Test-Path "cli_client.py")) {
-    if (-not (Test-Path "cli\cli_client.py")) {
-        Write-Error "cli_client.py not found. Run from pico-gpt directory."
-        exit 1
-    }
-    $cliPath = "cli\cli_client.py"
-} else {
-    $cliPath = "cli_client.py"
+$cliPath = "cli\cli_client.py"
+if (-not (Test-Path $cliPath)) {
+    Write-Error "cli_client.py not found at $cliPath. Run from pico-gpt root directory."
+    exit 1
 }
 Write-Success "CLI client found: $cliPath"
 
@@ -79,7 +75,7 @@ if ($modelFiles.Count -eq 0) {
     Write-Success "Found $($modelFiles.Count) model file(s)"
     foreach ($file in $modelFiles) {
         $sizeMB = [math]::Round($file.Length / 1MB, 1)
-        $fileName = $file.FullName
+        $fileName = $file.Name
         Write-Output "    $fileName - $sizeMB MB"
     }
 }

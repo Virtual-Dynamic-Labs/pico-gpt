@@ -16,6 +16,15 @@ except ImportError:
 import atexit
 # Add parent directory to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+# Create compatibility layer for old module references in saved models
+import src.pico_gpt as pico_gpt
+import src.tokenizer as tokenizer
+import src.fast_tokenizer as fast_tokenizer
+sys.modules['pico_gpt'] = pico_gpt
+sys.modules['tokenizer'] = tokenizer
+sys.modules['fast_tokenizer'] = fast_tokenizer
+
 from src.pico_gpt import GPT, GPTConfig
 from src.tokenizer import SimpleTokenizer
 
@@ -60,14 +69,47 @@ class PicoGPTCLI:
     
     def load_model(self):
         """Load the trained model"""
+        # Try to find the model file in common locations
+        potential_paths = [
+            self.model_path,  # Original path as specified
+            os.path.join('models', self.model_path),  # Try in models/ directory
+            os.path.join('models', os.path.basename(self.model_path))  # Try basename in models/
+        ]
+        
+        # Find the first path that exists
+        actual_model_path = None
+        for path in potential_paths:
+            if os.path.exists(path):
+                actual_model_path = path
+                break
+        
+        if actual_model_path:
+            self.model_path = actual_model_path
+        
         if not os.path.exists(self.model_path):
             print(f"[ERROR] Model file not found: {self.model_path}")
             print("Available model files:")
-            model_files = [f for f in os.listdir('.') if f.endswith('.pt')]
+            model_files = []
+            # Check current directory
+            if os.path.exists('.'):
+                model_files.extend([(f, '.') for f in os.listdir('.') if f.endswith('.pt')])
+            # Check models directory
+            if os.path.exists('models'):
+                model_files.extend([(f, 'models') for f in os.listdir('models') if f.endswith('.pt')])
+            
+            # Remove duplicates and create full paths
+            unique_models = []
+            seen = set()
+            for filename, directory in model_files:
+                full_path = os.path.join(directory, filename)
+                if filename not in seen:
+                    unique_models.append((filename, full_path))
+                    seen.add(filename)
+            model_files = unique_models
             if model_files:
-                for i, f in enumerate(model_files, 1):
-                    size_mb = os.path.getsize(f) / (1024 * 1024)
-                    print(f"  {i}. {f} ({size_mb:.1f} MB)")
+                for i, (filename, full_path) in enumerate(model_files, 1):
+                    size_mb = os.path.getsize(full_path) / (1024 * 1024)
+                    print(f"  {i}. {filename} ({size_mb:.1f} MB)")
                 
                 choice = input(f"\nSelect a model (1-{len(model_files)}) or 'q' to quit: ").strip()
                 if choice.lower() == 'q':
@@ -76,7 +118,7 @@ class PicoGPTCLI:
                 try:
                     idx = int(choice) - 1
                     if 0 <= idx < len(model_files):
-                        self.model_path = model_files[idx]
+                        self.model_path = model_files[idx][1]  # Use full path
                     else:
                         print("Invalid selection.")
                         sys.exit(1)
@@ -136,16 +178,30 @@ class PicoGPTCLI:
             # Encode input
             input_tokens = self.tokenizer.encode(full_text)
             
+            # Check if tokenization succeeded
+            if not input_tokens:
+                print(f"[ERROR] Tokenization failed for text: '{full_text[:50]}...'")
+                return None, None
+            
             # Trim if too long for model's context window
             max_input_length = self.config.block_size - max_tokens - 1
+            if max_input_length <= 0:
+                print(f"[ERROR] Invalid context window size. Block size: {self.config.block_size}, max_tokens: {max_tokens}")
+                return None, None
+                
             if len(input_tokens) > max_input_length:
                 input_tokens = input_tokens[-max_input_length:]
                 trimmed_text = self.tokenizer.decode(input_tokens)
                 if use_conversation:
-                    print(f"[INFO] Context trimmed to fit model's window ({max_input_length} tokens)")
+                    print(f"[INFO] Context trimmed to fit model's window (-{len(self.tokenizer.encode(full_text)) - len(input_tokens)} tokens)")
             else:
                 trimmed_text = full_text
             
+            # Ensure we have valid tokens
+            if not input_tokens:
+                print("[ERROR] No valid tokens after processing")
+                return None, None
+                
             context = torch.tensor(input_tokens, dtype=torch.long, device=self.device).unsqueeze(0)
             
             # Generate

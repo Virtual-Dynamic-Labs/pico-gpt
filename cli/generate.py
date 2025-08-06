@@ -8,17 +8,36 @@ sys.path.insert(0, project_root)
 # Create compatibility layer for old module references
 import src.pico_gpt as pico_gpt
 import src.tokenizer as tokenizer
+import src.fast_tokenizer as fast_tokenizer
 sys.modules['pico_gpt'] = pico_gpt
 sys.modules['tokenizer'] = tokenizer
+sys.modules['fast_tokenizer'] = fast_tokenizer
 
 from src.pico_gpt import GPT
 import argparse
 
 
 def load_model(model_path):
+    # Try to find the model file in common locations
+    potential_paths = [
+        model_path,  # Original path as specified
+        os.path.join('models', model_path),  # Try in models/ directory
+        os.path.join('models', os.path.basename(model_path))  # Try basename in models/
+    ]
+    
+    # Find the first path that exists
+    actual_model_path = None
+    for path in potential_paths:
+        if os.path.exists(path):
+            actual_model_path = path
+            break
+    
+    if not actual_model_path:
+        raise FileNotFoundError(f"Model file not found: {model_path}. Tried locations: {potential_paths}")
+    
     # Note: Using weights_only=False because we need to load the full model objects
     # including config and tokenizer. Only use with trusted model files.
-    checkpoint = torch.load(model_path, map_location='cpu', weights_only=False)
+    checkpoint = torch.load(actual_model_path, map_location='cpu', weights_only=False)
     model = GPT(checkpoint['config'])
     model.load_state_dict(checkpoint['model_state_dict'])
     tokenizer = checkpoint['tokenizer']

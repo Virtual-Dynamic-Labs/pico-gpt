@@ -6,8 +6,9 @@ Debug script for conversation mode
 import torch
 import sys
 import os
-from pico_gpt import GPT, GPTConfig
-from tokenizer import SimpleTokenizer
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from src.pico_gpt import GPT, GPTConfig
+from src.tokenizer import SimpleTokenizer
 
 def debug_generation():
     print("Debug: Loading model...")

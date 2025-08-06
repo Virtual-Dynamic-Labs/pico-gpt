@@ -4,8 +4,11 @@ Example usage of pico-GPT
 """
 
 import torch
-from pico_gpt import GPT, GPTConfig
-from tokenizer import SimpleTokenizer
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from src.pico_gpt import GPT, GPTConfig
+from src.tokenizer import SimpleTokenizer
 
 
 def create_tiny_gpt():

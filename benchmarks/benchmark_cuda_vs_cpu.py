@@ -5,8 +5,8 @@ import numpy as np
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from pico_gpt import GPT, GPTConfig
-from tokenizer import SimpleTokenizer
+from src.pico_gpt import GPT, GPTConfig
+from src.tokenizer import SimpleTokenizer
 
 
 def get_batch(data, batch_size, block_size, device):
@@ -31,7 +31,7 @@ def benchmark_training(device_name, num_iters=50):
     # Load the large trained model
     try:
         checkpoint_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'pico_gpt_large_best.pt')
-        checkpoint = torch.load(checkpoint_path, map_location=device)
+        checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
         
         config = checkpoint['config']
         model = GPT(config)

@@ -266,7 +266,7 @@ from src.fast_tokenizer import GPT2LikeTokenizer
 import torch
 
 # Load model
-checkpoint = torch.load('models/pico_gpt_final.pt')
+checkpoint = torch.load('models/pico_gpt_final.pt', weights_only=False)
 model = GPT(checkpoint['config'])
 model.load_state_dict(checkpoint['model_state_dict'])
 tokenizer = checkpoint['tokenizer']

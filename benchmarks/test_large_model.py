@@ -1,5 +1,8 @@
 import torch
-from pico_gpt import GPT
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from src.pico_gpt import GPT
 import time
 
 
@@ -12,7 +15,7 @@ def test_large_model():
     
     # Load the best model
     try:
-        checkpoint = torch.load('pico_gpt_large_best.pt', map_location=device)
+        checkpoint = torch.load('pico_gpt_large_best.pt', map_location=device, weights_only=False)
         
         config = checkpoint['config']
         model = GPT(config)

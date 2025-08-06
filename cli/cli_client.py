@@ -14,8 +14,10 @@ try:
 except ImportError:
     readline = None
 import atexit
-from pico_gpt import GPT, GPTConfig
-from tokenizer import SimpleTokenizer
+# Add parent directory to path for imports
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from src.pico_gpt import GPT, GPTConfig
+from src.tokenizer import SimpleTokenizer
 
 # Fix Windows console encoding issues
 if sys.platform == "win32":

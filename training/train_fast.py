@@ -6,7 +6,10 @@ import time
 import pickle
 import os
 import math
-from pico_gpt import GPT, GPTConfig
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from src.pico_gpt import GPT, GPTConfig
 from fast_tokenizer import GPT2LikeTokenizer
 
 

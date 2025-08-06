@@ -4,8 +4,11 @@ from torch.nn import functional as F
 import numpy as np
 import time
 import pickle
-from pico_gpt import GPT, GPTConfig
-from tokenizer import SimpleTokenizer
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from src.pico_gpt import GPT, GPTConfig
+from src.tokenizer import SimpleTokenizer
 
 
 def get_batch(data, batch_size, block_size, device):

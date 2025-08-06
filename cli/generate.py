@@ -1,10 +1,24 @@
 import torch
-from pico_gpt import GPT
+import sys
+import os
+# Get the absolute path to the project root
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
+
+# Create compatibility layer for old module references
+import src.pico_gpt as pico_gpt
+import src.tokenizer as tokenizer
+sys.modules['pico_gpt'] = pico_gpt
+sys.modules['tokenizer'] = tokenizer
+
+from src.pico_gpt import GPT
 import argparse
 
 
 def load_model(model_path):
-    checkpoint = torch.load(model_path, map_location='cpu')
+    # Note: Using weights_only=False because we need to load the full model objects
+    # including config and tokenizer. Only use with trusted model files.
+    checkpoint = torch.load(model_path, map_location='cpu', weights_only=False)
     model = GPT(checkpoint['config'])
     model.load_state_dict(checkpoint['model_state_dict'])
     tokenizer = checkpoint['tokenizer']
@@ -34,7 +48,7 @@ def generate_text(model, tokenizer, prompt, max_tokens=100, temperature=0.8, top
 
 def main():
     parser = argparse.ArgumentParser(description='Generate text with pico-GPT')
-    parser.add_argument('--model', default='pico_gpt_model.pt', help='Path to model checkpoint')
+    parser.add_argument('--model', default='models/pico_gpt_large_best.pt', help='Path to model checkpoint')
     parser.add_argument('--prompt', default='Hello', help='Text prompt for generation')
     parser.add_argument('--max_tokens', type=int, default=100, help='Maximum tokens to generate')
     parser.add_argument('--temperature', type=float, default=0.8, help='Sampling temperature')

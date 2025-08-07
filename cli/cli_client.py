@@ -160,19 +160,19 @@ class PicoGPTCLI:
             print(f"[ERROR] Error loading model: {e}")
             sys.exit(1)
     
-    def generate_text(self, prompt, max_tokens=100, temperature=0.8, top_k=20, use_conversation=True):
+    def generate_text(self, prompt, max_tokens=80, temperature=0.7, top_k=15, use_conversation=True):
         """Generate text from a prompt, optionally maintaining conversation context"""
         if not self.model or not self.tokenizer:
             print("[ERROR] Model not loaded!")
             return None, None
         
         try:
-            # Prepare input text
+            # For conversation model, ALWAYS use simple format (no context)
             if use_conversation and self.conversation_active:
-                # Use conversation context + new prompt
-                full_text = "".join(self.conversation_context) + prompt
+                # Simple conversation format that matches training - no context!
+                full_text = f"Human: {prompt}\nAssistant:"
             else:
-                # Just use the prompt
+                # Just use the prompt as-is for single mode
                 full_text = prompt
             
             # Encode input
@@ -192,8 +192,7 @@ class PicoGPTCLI:
             if len(input_tokens) > max_input_length:
                 input_tokens = input_tokens[-max_input_length:]
                 trimmed_text = self.tokenizer.decode(input_tokens)
-                if use_conversation:
-                    print(f"[INFO] Context trimmed to fit model's window (-{len(self.tokenizer.encode(full_text)) - len(input_tokens)} tokens)")
+                # Remove trimming messages for cleaner conversation
             else:
                 trimmed_text = full_text
             
@@ -216,8 +215,30 @@ class PicoGPTCLI:
             # Decode full generated text
             full_generated_text = self.tokenizer.decode(generated[0].tolist())
             
+            # Remove debug output
+            
             # Extract only the new generated part
-            new_text = full_generated_text[len(trimmed_text):]
+            if use_conversation and self.conversation_active:
+                # For conversation mode, extract clean response
+                if "Assistant" in full_generated_text:
+                    parts = full_generated_text.split("Assistant")
+                    if len(parts) > 1:
+                        new_text = parts[1].strip()
+                        
+                        # Stop at separators or next conversation
+                        for stop in ["Human", "---", "\n\n---", "\n---"]:
+                            if stop in new_text:
+                                new_text = new_text.split(stop)[0].strip()
+                                break
+                        
+                        # Clean up artifacts
+                        new_text = new_text.rstrip("'\"")
+                    else:
+                        new_text = ""
+                else:
+                    new_text = full_generated_text[len(full_text):].strip()
+            else:
+                new_text = full_generated_text[len(full_text):].strip()
             
             return new_text, full_generated_text
             

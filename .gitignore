@@ -177,7 +177,6 @@ tensorboard_logs/
 
 # Data directories
 data/
-datasets/
 *.csv
 *.json
 *.xml

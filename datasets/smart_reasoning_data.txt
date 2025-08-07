@@ -1,0 +1,212 @@
+Problem: If a train travels 240 km in 3 hours, what is its average speed?
+Solution: Speed = Distance ÷ Time = 240 km ÷ 3 hours = 80 km/h
+
+Problem: A recipe calls for 2 cups of flour for 12 cookies. How much flour is needed for 18 cookies?
+Solution: Set up a proportion: 2 cups / 12 cookies = x cups / 18 cookies
+Cross multiply: 12x = 36, so x = 3 cups of flour needed
+
+Problem: Debug this Python code that should find the maximum value in a list:
+def find_max(numbers):
+    max_val = numbers[0]
+    for num in numbers:
+        if num < max_val:
+            max_val = num
+    return max_val
+
+Solution: The bug is in the comparison. It should be "if num > max_val" not "if num < max_val":
+def find_max(numbers):
+    max_val = numbers[0]
+    for num in numbers:
+        if num > max_val:
+            max_val = num
+    return max_val
+
+Problem: Plan a weekly schedule for someone learning Python programming (2 hours daily).
+Solution: 
+Monday: Python basics - variables, data types (2h)
+Tuesday: Control structures - if/else, loops (2h) 
+Wednesday: Functions and modules (2h)
+Thursday: Data structures - lists, dictionaries (2h)
+Friday: File handling and error management (2h)
+Weekend: Practice project - build a simple calculator
+
+Problem: How can I optimize this slow database query?
+SELECT * FROM users WHERE age > 25 AND city = 'New York' ORDER BY name;
+
+Solution: 
+1. Add indexes: CREATE INDEX idx_age_city ON users(age, city);
+2. Add index for sorting: CREATE INDEX idx_name ON users(name);
+3. Select only needed columns instead of *
+4. Consider limiting results if not all are needed
+
+Problem: Explain why this logic is flawed: "All birds can fly. Penguins are birds. Therefore penguins can fly."
+Solution: This is a logical fallacy due to an incorrect premise. The statement "All birds can fly" is false - many birds cannot fly (penguins, ostriches, kiwis, etc.). The logical structure is valid (modus ponens) but the conclusion is false because the major premise is incorrect.
+
+Problem: A company's profit increased by 20% last year and 15% this year. What's the total percentage increase?
+Solution: Don't just add percentages! Use compound growth:
+If original profit = 100, then:
+After year 1: 100 × 1.20 = 120
+After year 2: 120 × 1.15 = 138
+Total increase = 38%, not 35%
+
+Problem: Design a simple algorithm to check if a string is a palindrome.
+Solution: Two-pointer approach:
+1. Set left pointer at start, right pointer at end
+2. Compare characters at both pointers
+3. If different, return false
+4. Move pointers toward center
+5. If they meet/cross, return true
+
+def is_palindrome(s):
+    left, right = 0, len(s) - 1
+    while left < right:
+        if s[left] != s[right]:
+            return False
+        left += 1
+        right -= 1
+    return True
+
+Problem: Why is my website loading slowly? Users report 5-10 second load times.
+Solution: Common causes and fixes:
+1. Image optimization - compress large images, use WebP format
+2. Minimize HTTP requests - combine CSS/JS files
+3. Enable caching - browser and server-side
+4. Use CDN for static assets
+5. Optimize database queries
+6. Enable compression (gzip)
+7. Check hosting server performance
+
+Problem: Solve this step by step: 2x + 5 = 3x - 7
+Solution:
+Step 1: Move variables to one side: 2x - 3x = -7 - 5
+Step 2: Simplify: -x = -12  
+Step 3: Multiply by -1: x = 12
+Step 4: Check: 2(12) + 5 = 24 + 5 = 29, and 3(12) - 7 = 36 - 7 = 29 ✓
+
+Problem: My Python program keeps crashing with "IndexError: list index out of range". How do I fix this?
+Solution: This error occurs when accessing a list index that doesn't exist. Prevention strategies:
+1. Check list length: if len(my_list) > index:
+2. Use try/except: 
+   try:
+       value = my_list[index]
+   except IndexError:
+       print("Index not found")
+3. Use safe methods like .get() for dictionaries
+4. Validate input ranges before using as indices
+
+Problem: Calculate the area of a triangle with sides 3, 4, and 5.
+Solution: This is a right triangle (3² + 4² = 5²), so:
+Area = ½ × base × height = ½ × 3 × 4 = 6 square units
+
+Alternative using Heron's formula:
+s = (3+4+5)/2 = 6
+Area = √[s(s-a)(s-b)(s-c)] = √[6×3×2×1] = √36 = 6
+
+Problem: Explain the difference between supervised and unsupervised machine learning.
+Solution:
+Supervised Learning: Uses labeled training data to learn patterns
+- Has input-output pairs for training
+- Goal: predict outputs for new inputs  
+- Examples: email spam detection, image classification
+
+Unsupervised Learning: Finds patterns in unlabeled data
+- Only has input data, no target outputs
+- Goal: discover hidden structures
+- Examples: customer segmentation, data compression
+
+Problem: Why isn't my CSS working? The text color won't change.
+Solution: Common CSS debugging steps:
+1. Check selector specificity - more specific rules override general ones
+2. Verify correct property names (color vs colour)
+3. Check for typos in class/ID names
+4. Use browser dev tools to inspect applied styles
+5. Ensure CSS file is properly linked in HTML
+6. Check for conflicting styles or !important declarations
+
+Problem: A password must be 8+ characters with uppercase, lowercase, numbers, and symbols. Validate this: "MyPass123"
+Solution: Analysis of "MyPass123":
+✓ 8+ characters (9 characters)
+✓ Uppercase letters (M, P)  
+✓ Lowercase letters (y, a, s, s)
+✓ Numbers (1, 2, 3)
+✗ Symbols (none present)
+Result: Invalid - missing required symbols
+
+Problem: Optimize this inefficient code:
+total = 0
+for i in range(1000000):
+    if i % 2 == 0:
+        total += i
+
+Solution: Mathematical approach is much faster:
+# Sum of even numbers from 0 to n-1 where n=1000000
+# Even numbers: 0, 2, 4, ..., 999998
+# This is arithmetic series: sum = count × (first + last) / 2
+count = 500000  # half of 1000000
+total = count * (0 + 999998) // 2 = 249999500000
+
+Problem: Explain why correlation doesn't imply causation with an example.
+Solution: Ice cream sales and drowning deaths both increase in summer, showing strong correlation. However:
+- Ice cream doesn't cause drowning
+- Drowning doesn't cause ice cream sales  
+- The real cause is warm weather (confounding variable)
+
+This shows correlation can exist without causation due to hidden variables, reverse causation, or pure coincidence.
+
+Problem: How do I structure a research paper effectively?
+Solution: Standard academic structure:
+1. Title - clear and descriptive
+2. Abstract - 150-250 word summary
+3. Introduction - background and thesis
+4. Literature Review - existing research
+5. Methodology - how you conducted research  
+6. Results - findings and data
+7. Discussion - interpretation of results
+8. Conclusion - key takeaways
+9. References - cited sources
+
+Problem: Debug this SQL query that returns no results:
+SELECT name FROM employees WHERE salary = '50000';
+
+Solution: The issue is likely data type mismatch. If salary is stored as a number, don't use quotes:
+SELECT name FROM employees WHERE salary = 50000;
+
+Also check:
+- Table/column names are correct
+- Data actually exists in that range
+- No leading/trailing spaces in data
+
+Problem: Convert 75°F to Celsius and explain the formula.
+Solution: Formula: C = (F - 32) × 5/9
+C = (75 - 32) × 5/9 = 43 × 5/9 = 215/9 ≈ 23.89°C
+
+The formula works because:
+- Subtract 32 to adjust for different zero points
+- Multiply by 5/9 to convert scale ratio (9°F = 5°C)
+
+Problem: My website looks different on mobile vs desktop. How do I fix responsive design issues?
+Solution: Key responsive design principles:
+1. Use viewport meta tag: <meta name="viewport" content="width=device-width, initial-scale=1">
+2. CSS media queries for different screen sizes
+3. Flexible layouts with percentages/flexbox/grid
+4. Scalable images: max-width: 100%
+5. Touch-friendly button sizes (44px minimum)
+6. Test on actual devices or browser dev tools
+
+Problem: Calculate compound interest: $1000 invested at 5% annually for 3 years.
+Solution: Formula: A = P(1 + r)^t
+Where: P=$1000, r=0.05, t=3
+A = 1000(1 + 0.05)^3 = 1000(1.05)^3 = 1000 × 1.157625 = $1157.63
+Interest earned = $1157.63 - $1000 = $157.63
+
+Problem: Why does my code work on my computer but not in production?
+Solution: Common environment differences:
+1. Different versions (Python, libraries, OS)
+2. Missing dependencies - use requirements.txt
+3. Environment variables not set
+4. File path differences (Windows vs Linux)
+5. Database connection settings
+6. Permissions issues
+7. Configuration differences
+
+Best practices: Use containers (Docker) or virtual environments for consistency.

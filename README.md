@@ -31,38 +31,47 @@ pico-gpt/
 │   └── __init__.py
 │
 ├── 📁 training/                 # Training scripts
-│   ├── train_conversation.py   # 🌟 BEST: Conversation model training
-│   └── train_large.py          # Large model training
+│   └── train_conversation.py   # 🌟 BEST: Conversation model training
 │
 ├── 📁 cli/                      # User interfaces
-│   ├── cli_fast.py             # 🌟 MAIN: Interactive chat CLI
-│   ├── cli_client.py           # Alternative CLI
-│   ├── generate.py             # Simple text generation
-│   └── run_cli.ps1             # Windows PowerShell launcher
+│   ├── cli_client.py           # 🌟 MAIN: Interactive chat CLI
+│   └── generate.py             # Simple text generation
 │
 ├── 📁 models/                   # Trained models
-│   ├── pico_gpt_conversation.pt # 🌟 BEST: Conversation model (26.2M params)
-│   └── pico_gpt_large.pt       # Large model for maximum capability (88.9M params)
+│   └── pico_gpt_conversation.pt # 🌟 Conversation model (26.2M params)
 │
 ├── 📁 datasets/                 # Training data & tokenizers
-│   ├── clean_conversation_data.txt    # 🌟 Clean chat data
-│   ├── fast_tokenizer_gpt2_8000.pkl  # 🌟 Optimized tokenizer
+│   ├── clean_conversation_data.txt      # 🌟 Clean chat data
+│   ├── fast_tokenizer_gpt2_8000.pkl    # 🌟 Optimized tokenizer
+│   ├── combined_enhanced_data.txt       # Enhanced training data
+│   ├── comprehensive_conversations.txt  # Comprehensive dialogue data
+│   ├── conversation_training.txt        # Core training conversations
+│   ├── smart_reasoning_data.txt         # Advanced reasoning examples
 │   └── [other datasets...]
-│
-├── 📁 data/                     # Raw training data
-│   ├── combined_literature.txt  # Literature corpus
-│   └── [classic books...]
 │
 ├── 📁 tests/                    # Test & example scripts
 │   ├── example.py              # Basic functionality demo
 │   ├── test_conversation.py    # Conversation testing
-│   └── debug_conversation.py   # Debugging tools
+│   ├── debug_conversation.py   # Debugging tools
+│   └── test_train.py           # Training verification
 │
 ├── 📁 scripts/                  # Utility scripts
+│   ├── create_clean_conversation_data.py  # Data preprocessing
+│   ├── create_conversation_data.py        # Conversation generation
+│   ├── create_smart_dataset.py           # Smart dataset creation
+│   ├── download_dataset.py               # Dataset downloading
+│   ├── main.py                           # Main entry point
+│   └── run.py                            # Simple runner
+│
 ├── 📁 benchmarks/               # Performance testing
-├── 📄 main.py                   # 🌟 Main entry point
-├── 📄 run.py                    # Simple runner
-├── 📄 architecture_diagram.md   # Visual architecture guide
+│   ├── benchmark_cuda_vs_cpu.py      # CUDA vs CPU benchmarking
+│   ├── benchmark_large_model.py      # Large model performance
+│   └── test_large_model.py           # Large model testing
+│
+├── 📄 setup.py                  # Package configuration
+├── 📄 requirements.txt          # Python dependencies
+├── 📄 upload_to_hf.py           # Hugging Face upload script
+├── 📄 run_cli.ps1               # Windows PowerShell launcher
 └── 📄 README.md                 # This file
 ```
 
@@ -82,14 +91,12 @@ pip install -r requirements.txt
 ### 2. Interactive Chat (Recommended)
 
 ```bash
-# Using the simple runner
-python run.py
+# Using main scripts
+python scripts/run.py
+python scripts/main.py
 
-# Using main entry point
-python main.py chat
-
-# Windows batch file
-run_cli.bat
+# Using CLI directly
+python cli/cli_client.py
 
 # Windows PowerShell
 .\run_cli.ps1
@@ -105,12 +112,8 @@ run_cli.bat
 ### 3. Train a Model
 
 ```bash
-# Train the best conversation model
-cd training
-python train_conversation.py
-
-# Large model for maximum capability
-python training/train_large.py
+# Train the conversation model
+python training/train_conversation.py
 ```
 
 ### 4. Generate Text
@@ -122,8 +125,8 @@ python cli/generate.py --prompt "Hello world"
 # Advanced generation with parameters
 python cli/generate.py --prompt "Python is" --max_tokens 50 --temperature 0.8 --top_k 10
 
-# From main entry point
-python main.py generate --prompt "Once upon a time"
+# From scripts directory
+python scripts/main.py generate --prompt "Once upon a time"
 ```
 
 ### 5. Test the Implementation

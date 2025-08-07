@@ -1,0 +1,97 @@
+---
+license: mit
+language: en
+tags:
+- conversational-ai
+- gpt
+- pytorch
+- text-generation
+- chatbot
+widget:
+- text: "Human: Hello, how are you?"
+  example_title: "Greeting"
+- text: "Human: Can you help me with something?"
+  example_title: "Request for help"
+- text: "Human: What's your favorite color?"
+  example_title: "Question"
+---
+
+# Pico GPT Conversational Model
+
+A small but effective conversational AI model trained for natural dialogue interactions.
+
+## Model Details
+
+- **Model Type**: GPT-style autoregressive language model
+- **Parameters**: 27,411,456
+- **Vocabulary Size**: 1,500
+- **Context Length**: 256 tokens
+- **Architecture**: 8 layers, 8 attention heads, 512 embedding dimension
+- **Training Loss**: 0.0222
+- **Training Iterations**: 1900
+
+## Usage
+
+```python
+import torch
+from src.pico_gpt import GPT, GPTConfig
+from src.tokenizer import SimpleTokenizer
+
+# Load the model
+checkpoint = torch.load('pico_gpt_conversation.pt', map_location='cpu')
+config = checkpoint['config']
+tokenizer = checkpoint['tokenizer']
+
+model = GPT(config)
+model.load_state_dict(checkpoint['model_state_dict'])
+model.eval()
+
+# Generate response
+prompt = "Human: Hello, how are you?\nAssistant:"
+tokens = tokenizer.encode(prompt)
+context = torch.tensor(tokens, dtype=torch.long).unsqueeze(0)
+
+with torch.no_grad():
+    generated = model.generate(context, max_new_tokens=50, temperature=0.7, top_k=15)
+
+response = tokenizer.decode(generated[0].tolist())
+print(response)
+```
+
+## Training
+
+The model was trained on a curated dataset of conversational exchanges with:
+- High-quality human-assistant dialogues
+- Natural conversation patterns
+- Clear response boundaries using separators
+- Repetitive training for pattern learning
+
+## Limitations
+
+- Designed for single-turn conversations (each exchange is independent)
+- Limited vocabulary of 1,500 tokens
+- Context window of 256 tokens
+- Best suited for short, natural responses
+
+## Example Conversations
+
+**Input**: "Human: Hello, how are you?"
+**Output**: "Hello! How are you?"
+
+**Input**: "Human: Can you help me with something?"  
+**Output**: "Of course! I'd be happy to help. What do you need?"
+
+**Input**: "Human: What's your favorite color?"
+**Output**: "I don't have preferences like humans do, but I find all colors interesting! What's yours?"
+
+## Files Included
+
+- `pico_gpt_conversation.pt` - The trained model checkpoint
+- `src/pico_gpt.py` - Model architecture
+- `src/tokenizer.py` - Tokenizer implementation  
+- `cli/cli_client.py` - Command-line interface
+- `run_cli.ps1` - Easy launcher script
+
+## License
+
+MIT License - Feel free to use and modify for your projects!

@@ -6,11 +6,13 @@ A minimal, educational implementation of the GPT (Generative Pre-trained Transfo
 
 - **Complete GPT Architecture**: Multi-head self-attention, position embeddings, layer normalization
 - **Professional Structure**: Organized by purpose with src/, training/, cli/, tests/
-- **Multiple Interfaces**: Interactive CLI, direct generation, Python API
+- **Multiple Interfaces**: Interactive CLI, Gradio web app, direct generation, Python API
 - **Optimized Training**: Ultra-fast conversation training (16 seconds)
 - **GPU Acceleration**: Automatic CUDA detection and usage
 - **Configurable Models**: Easily adjust layers, heads, embedding dimensions
 - **Text Generation**: Autoregressive generation with temperature and top-k sampling
+- **Web Interface**: Gradio app for easy deployment and sharing
+- **Hugging Face Integration**: Model upload and deployment scripts
 - **Educational Examples**: Comprehensive examples and documentation
 
 ## 📋 Requirements
@@ -68,9 +70,11 @@ pico-gpt/
 │   ├── benchmark_large_model.py      # Large model performance
 │   └── test_large_model.py           # Large model testing
 │
+├── 📄 app.py                    # 🌟 Gradio web interface
 ├── 📄 setup.py                  # Package configuration
 ├── 📄 requirements.txt          # Python dependencies
 ├── 📄 upload_to_hf.py           # Hugging Face upload script
+├── 📄 README.md.model           # Hugging Face model card
 ├── 📄 run_cli.ps1               # Windows PowerShell launcher
 └── 📄 README.md                 # This file
 ```
@@ -90,6 +94,7 @@ pip install -r requirements.txt
 
 ### 2. Interactive Chat (Recommended)
 
+**Command Line Interface:**
 ```bash
 # Using main scripts
 python scripts/run.py
@@ -100,6 +105,14 @@ python cli/cli_client.py
 
 # Windows PowerShell
 .\run_cli.ps1
+```
+
+**Web Interface (Gradio):**
+```bash
+# Run local web interface
+python app.py
+
+# Then open http://localhost:7860
 ```
 
 **Interactive CLI Features:**
@@ -137,9 +150,15 @@ python tests/example.py
 
 # Training test
 python tests/test_train.py
+```
 
-# From root
-python main.py test --type basic
+### 6. Deploy to Hugging Face
+
+```bash
+# Create model card and upload instructions
+python upload_to_hf.py
+
+# Follow the generated instructions to upload your model
 ```
 
 ## 💾 Model Files
@@ -177,7 +196,7 @@ When in conversation mode, you can use these commands:
 - `/load` - Load a different model
 - `/quit` - Exit program
 
-### Command Line Options
+### CLI Command Line Options
 
 | Option | Description | Default |
 |--------|-------------|---------|
@@ -242,6 +261,21 @@ learning_rate = 3e-4        # Learning rate
 max_iters = 5000           # Training iterations
 eval_interval = 1000       # Validation frequency
 ```
+
+## 🌐 Web Interface
+
+The Gradio web interface provides an easy-to-use chat interface:
+
+```bash
+# Start the web interface
+python app.py
+```
+
+**Features:**
+- Interactive chat interface
+- Adjustable temperature and token length
+- Real-time conversation
+- Deployable to Hugging Face Spaces
 
 ## 📚 Usage Examples
 
@@ -315,6 +349,24 @@ Throughput (tokens/sec):
 
 Memory Usage:
   CUDA Allocated: 981.1 MB
+```
+
+## 🚀 Deployment
+
+### Hugging Face Spaces
+
+Deploy the web interface to Hugging Face Spaces:
+
+1. Create a new Space on Hugging Face
+2. Upload `app.py`, `src/`, and your model file
+3. Set runtime to "Python" with Gradio SDK
+4. Your model will be available as a web app!
+
+### Local Sharing
+
+```bash
+# Share locally via Gradio
+python app.py  # Automatically creates shareable link
 ```
 
 ## 🎓 Educational Notes
